@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">E_Commerce_AFM_Remake</string>
+    <string-array name="roles_array">
+        <item>user</item>
+        <item>admin</item>
+    </string-array>
+</resources>
