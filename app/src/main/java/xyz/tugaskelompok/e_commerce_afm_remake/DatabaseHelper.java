@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "ecommerce_afm.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_USERS = "users";
     public static final String COLUMN_ID = "id";
@@ -20,6 +20,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_EMAIL = "email";
     public static final String COLUMN_PASSWORD = "password";
     public static final String COLUMN_ROLE = "role"; // "user" or "admin"
+    public static final String COLUMN_ADDRESS = "address";
+    public static final String COLUMN_PHONE = "phone";
 
     public static final String TABLE_PRODUCTS = "products";
     public static final String COLUMN_PRODUCT_ID = "id";
@@ -29,6 +31,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PRODUCT_IMAGE_URL = "image_url";
     public static final String COLUMN_PRODUCT_DESCRIPTION = "description";
     public static final String COLUMN_PRODUCT_STOCK = "stock";
+
+    public static final String TABLE_ORDERS = "orders";
+    public static final String COLUMN_ORDER_ID = "id";
+    public static final String COLUMN_ORDER_USER_EMAIL = "user_email";
+    public static final String COLUMN_ORDER_USER_NAME = "user_name";
+    public static final String COLUMN_ORDER_ADDRESS = "address";
+    public static final String COLUMN_ORDER_PHONE = "phone";
+    public static final String COLUMN_ORDER_ITEMS = "items"; // JSON string
+    public static final String COLUMN_ORDER_TOTAL = "total";
+    public static final String COLUMN_ORDER_SHIPPING = "shipping";
+    public static final String COLUMN_ORDER_DATE = "order_date";
+    public static final String COLUMN_ORDER_STATUS = "status";
+
+    public static final String TABLE_ORDER_STATUS_UPDATES = "order_status_updates";
+    public static final String COLUMN_STATUS_UPDATE_ID = "id";
+    public static final String COLUMN_STATUS_UPDATE_ORDER_ID = "order_id";
+    public static final String COLUMN_STATUS_UPDATE_TEXT = "status_text";
+    public static final String COLUMN_STATUS_UPDATE_TIMESTAMP = "timestamp";
 
     private static final String SQL_CREATE_USERS =
             "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
@@ -50,6 +70,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_PRODUCT_STOCK + " INTEGER DEFAULT 0" +
             ")";
 
+    private static final String SQL_CREATE_ORDERS =
+            "CREATE TABLE IF NOT EXISTS " + TABLE_ORDERS + " (" +
+                    COLUMN_ORDER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_ORDER_USER_EMAIL + " TEXT NOT NULL, " +
+                    COLUMN_ORDER_USER_NAME + " TEXT NOT NULL, " +
+                    COLUMN_ORDER_ADDRESS + " TEXT NOT NULL, " +
+                    COLUMN_ORDER_PHONE + " TEXT NOT NULL, " +
+                    COLUMN_ORDER_ITEMS + " TEXT NOT NULL, " +
+                    COLUMN_ORDER_TOTAL + " REAL NOT NULL, " +
+                    COLUMN_ORDER_SHIPPING + " REAL NOT NULL, " +
+                    COLUMN_ORDER_DATE + " TEXT NOT NULL, " +
+                    COLUMN_ORDER_STATUS + " TEXT DEFAULT 'pending'" +
+            ")";
+
+    private static final String SQL_CREATE_ORDER_STATUS_UPDATES =
+            "CREATE TABLE IF NOT EXISTS " + TABLE_ORDER_STATUS_UPDATES + " (" +
+                    COLUMN_STATUS_UPDATE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_STATUS_UPDATE_ORDER_ID + " INTEGER NOT NULL, " +
+                    COLUMN_STATUS_UPDATE_TEXT + " TEXT NOT NULL, " +
+                    COLUMN_STATUS_UPDATE_TIMESTAMP + " TEXT NOT NULL, " +
+                    "FOREIGN KEY(" + COLUMN_STATUS_UPDATE_ORDER_ID + ") REFERENCES " + TABLE_ORDERS + "(" + COLUMN_ORDER_ID + ") ON DELETE CASCADE" +
+            ")";
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -58,6 +101,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_USERS);
         db.execSQL(SQL_CREATE_PRODUCTS);
+        db.execSQL(SQL_CREATE_ORDERS);
+        db.execSQL(SQL_CREATE_ORDER_STATUS_UPDATES);
         seedDefaultAdmin(db);
         seedSampleProducts(db);
     }
@@ -68,7 +113,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(SQL_CREATE_PRODUCTS);
             seedSampleProducts(db);
         }
-        // Future migrations can be added here
+        if (oldVersion < 3) {
+            // Add address and phone columns to users table
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_ADDRESS + " TEXT");
+            } catch (Exception e) {
+                // Column might already exist
+            }
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_PHONE + " TEXT");
+            } catch (Exception e) {
+                // Column might already exist
+            }
+            // Create orders table
+            db.execSQL(SQL_CREATE_ORDERS);
+        }
+        if (oldVersion < 4) {
+            db.execSQL(SQL_CREATE_ORDER_STATUS_UPDATES);
+        }
     }
 
     @Override
@@ -122,6 +184,262 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         if (cursor != null) cursor.close();
         return role; // null if not found
+    }
+
+    public String[] getUserInfoByEmail(String email) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_USERS,
+                new String[]{COLUMN_NAME, COLUMN_EMAIL, COLUMN_ADDRESS, COLUMN_PHONE},
+                COLUMN_EMAIL + " = ?",
+                new String[]{email},
+                null,
+                null,
+                null
+        );
+        String[] userInfo = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            userInfo = new String[4];
+            userInfo[0] = cursor.getString(0); // name
+            userInfo[1] = cursor.getString(1); // email
+            userInfo[2] = cursor.getString(2); // address (might be null)
+            userInfo[3] = cursor.getString(3); // phone (might be null)
+        }
+        if (cursor != null) cursor.close();
+        return userInfo;
+    }
+
+    public boolean updateUserProfile(String email, String address, String phone) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ADDRESS, address);
+        values.put(COLUMN_PHONE, phone);
+        int rowsAffected = db.update(TABLE_USERS, values, COLUMN_EMAIL + " = ?", new String[]{email});
+        return rowsAffected > 0;
+    }
+
+    public long createOrder(String userEmail, String userName, String address, String phone, String itemsJson, double total, double shipping) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ORDER_USER_EMAIL, userEmail);
+        values.put(COLUMN_ORDER_USER_NAME, userName);
+        values.put(COLUMN_ORDER_ADDRESS, address);
+        values.put(COLUMN_ORDER_PHONE, phone);
+        values.put(COLUMN_ORDER_ITEMS, itemsJson);
+        values.put(COLUMN_ORDER_TOTAL, total);
+        values.put(COLUMN_ORDER_SHIPPING, shipping);
+        values.put(COLUMN_ORDER_DATE, String.valueOf(System.currentTimeMillis()));
+        values.put(COLUMN_ORDER_STATUS, "pending");
+        long orderId = db.insert(TABLE_ORDERS, null, values);
+        if (orderId != -1) {
+            addOrderStatusUpdate((int) orderId, "Pesanan dibuat");
+        }
+        return orderId;
+    }
+
+    public List<Order> getOrdersByUserEmail(String userEmail) {
+        List<Order> orders = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_ORDERS,
+                null,
+                COLUMN_ORDER_USER_EMAIL + " = ?",
+                new String[]{userEmail},
+                null,
+                null,
+                COLUMN_ORDER_DATE + " DESC"
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Order order = cursorToOrder(cursor);
+                orders.add(order);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return orders;
+    }
+
+    public Order getOrderById(int orderId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_ORDERS,
+                null,
+                COLUMN_ORDER_ID + " = ?",
+                new String[]{String.valueOf(orderId)},
+                null,
+                null,
+                null
+        );
+
+        Order order = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            order = cursorToOrder(cursor);
+            cursor.close();
+        }
+        return order;
+    }
+
+    public List<Order> getAllOrders() {
+        List<Order> orders = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_ORDERS,
+                null,
+                null,
+                null,
+                null,
+                null,
+                COLUMN_ORDER_DATE + " DESC"
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Order order = cursorToOrder(cursor);
+                orders.add(order);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return orders;
+    }
+
+    public boolean updateOrderStatus(int orderId, String status) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ORDER_STATUS, status);
+        int rows = db.update(TABLE_ORDERS, values, COLUMN_ORDER_ID + " = ?", new String[]{String.valueOf(orderId)});
+        return rows > 0;
+    }
+
+    public long addOrderStatusUpdate(int orderId, String statusText) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_STATUS_UPDATE_ORDER_ID, orderId);
+        values.put(COLUMN_STATUS_UPDATE_TEXT, statusText);
+        values.put(COLUMN_STATUS_UPDATE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
+        long id = db.insert(TABLE_ORDER_STATUS_UPDATES, null, values);
+        if (id != -1) {
+            updateOrderStatus(orderId, statusText);
+        }
+        return id;
+    }
+
+    public boolean updateOrderStatusUpdate(int statusUpdateId, String statusText) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_STATUS_UPDATE_TEXT, statusText);
+        values.put(COLUMN_STATUS_UPDATE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
+        int rows = db.update(TABLE_ORDER_STATUS_UPDATES, values, COLUMN_STATUS_UPDATE_ID + " = ?", new String[]{String.valueOf(statusUpdateId)});
+        if (rows > 0) {
+            Cursor cursor = db.query(
+                    TABLE_ORDER_STATUS_UPDATES,
+                    new String[]{COLUMN_STATUS_UPDATE_ORDER_ID},
+                    COLUMN_STATUS_UPDATE_ID + " = ?",
+                    new String[]{String.valueOf(statusUpdateId)},
+                    null,
+                    null,
+                    null
+            );
+            if (cursor != null && cursor.moveToFirst()) {
+                int orderId = cursor.getInt(0);
+                cursor.close();
+                syncOrderStatusWithLatest(orderId);
+            }
+        }
+        return rows > 0;
+    }
+
+    public boolean deleteOrderStatusUpdate(int statusUpdateId) {
+        SQLiteDatabase db = getWritableDatabase();
+        Integer orderId = null;
+        Cursor cursor = db.query(
+                TABLE_ORDER_STATUS_UPDATES,
+                new String[]{COLUMN_STATUS_UPDATE_ORDER_ID},
+                COLUMN_STATUS_UPDATE_ID + " = ?",
+                new String[]{String.valueOf(statusUpdateId)},
+                null,
+                null,
+                null
+        );
+        if (cursor != null && cursor.moveToFirst()) {
+            orderId = cursor.getInt(0);
+            cursor.close();
+        }
+        int rows = db.delete(TABLE_ORDER_STATUS_UPDATES, COLUMN_STATUS_UPDATE_ID + " = ?", new String[]{String.valueOf(statusUpdateId)});
+        if (rows > 0 && orderId != null) {
+            syncOrderStatusWithLatest(orderId);
+        }
+        return rows > 0;
+    }
+
+    public List<OrderStatusUpdate> getOrderStatusUpdates(int orderId) {
+        List<OrderStatusUpdate> statuses = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_ORDER_STATUS_UPDATES,
+                null,
+                COLUMN_STATUS_UPDATE_ORDER_ID + " = ?",
+                new String[]{String.valueOf(orderId)},
+                null,
+                null,
+                COLUMN_STATUS_UPDATE_TIMESTAMP + " ASC"
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                OrderStatusUpdate statusUpdate = cursorToStatusUpdate(cursor);
+                statuses.add(statusUpdate);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return statuses;
+    }
+
+    private void syncOrderStatusWithLatest(int orderId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_ORDER_STATUS_UPDATES,
+                new String[]{COLUMN_STATUS_UPDATE_TEXT},
+                COLUMN_STATUS_UPDATE_ORDER_ID + " = ?",
+                new String[]{String.valueOf(orderId)},
+                null,
+                null,
+                COLUMN_STATUS_UPDATE_TIMESTAMP + " DESC",
+                "1"
+        );
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                String latestStatus = cursor.getString(0);
+                updateOrderStatus(orderId, latestStatus);
+            } else {
+                updateOrderStatus(orderId, "pending");
+            }
+            cursor.close();
+        }
+    }
+
+    private Order cursorToOrder(Cursor cursor) {
+        Order order = new Order();
+        order.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ORDER_ID)));
+        order.setUserEmail(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ORDER_USER_EMAIL)));
+        order.setUserName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ORDER_USER_NAME)));
+        order.setAddress(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ORDER_ADDRESS)));
+        order.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ORDER_PHONE)));
+        order.setItemsJson(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ORDER_ITEMS)));
+        order.setTotal(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_ORDER_TOTAL)));
+        order.setShipping(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_ORDER_SHIPPING)));
+        order.setOrderDate(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ORDER_DATE)));
+        order.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ORDER_STATUS)));
+        return order;
+    }
+
+    private OrderStatusUpdate cursorToStatusUpdate(Cursor cursor) {
+        OrderStatusUpdate statusUpdate = new OrderStatusUpdate();
+        statusUpdate.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_STATUS_UPDATE_ID)));
+        statusUpdate.setOrderId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_STATUS_UPDATE_ORDER_ID)));
+        statusUpdate.setStatusText(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_STATUS_UPDATE_TEXT)));
+        statusUpdate.setTimestamp(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_STATUS_UPDATE_TIMESTAMP)));
+        return statusUpdate;
     }
 
     private void seedDefaultAdmin(SQLiteDatabase db) {
@@ -330,6 +648,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         product.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_CATEGORY)));
         product.setPrice(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_PRICE)));
         product.setImageUrl(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_IMAGE_URL)));
+        product.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_DESCRIPTION)));
+        product.setStock(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRODUCT_STOCK)));
         return product;
     }
 

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -79,10 +80,9 @@ public class MainActivity extends AppCompatActivity {
         filteredProducts = new ArrayList<>();
         productAdapter = new ProductAdapter(filteredProducts);
         productAdapter.setOnProductClickListener(product -> {
-            // TODO: Handle product click - navigate to product detail
-            // Intent intent = new Intent(MainActivity.this, ProductDetailActivity.class);
-            // intent.putExtra("product", product);
-            // startActivity(intent);
+            Intent intent = new Intent(MainActivity.this, ProductDetailActivity.class);
+            intent.putExtra("productId", product.getId());
+            startActivity(intent);
         });
         recyclerViewProducts.setAdapter(productAdapter);
     }
@@ -174,17 +174,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         layoutPesanan.setOnClickListener(v -> {
-            // TODO: Navigate to orders page
-            // Intent intent = new Intent(MainActivity.this, OrdersActivity.class);
-            // startActivity(intent);
-            updateFooterSelection(layoutPesanan, true);
+            Intent intent = new Intent(MainActivity.this, OrdersActivity.class);
+            startActivity(intent);
+            finish();
         });
 
         layoutProfil.setOnClickListener(v -> {
-            // TODO: Navigate to profile page
-            // Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-            // startActivity(intent);
-            updateFooterSelection(layoutProfil, true);
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
@@ -204,16 +202,17 @@ public class MainActivity extends AppCompatActivity {
         ImageView icon = (ImageView) layout.getChildAt(0);
         TextView text = (TextView) layout.getChildAt(1);
         
-        int color = isSelected ? 0xFF2196F3 : 0xFF757575;
+        int color = isSelected 
+            ? ContextCompat.getColor(this, R.color.primary_blue)
+            : ContextCompat.getColor(this, R.color.text_secondary);
         icon.setColorFilter(color);
         text.setTextColor(color);
     }
 
     private void setupCart() {
         imageViewCart.setOnClickListener(v -> {
-            // TODO: Navigate to cart page
-            // Intent intent = new Intent(MainActivity.this, CartActivity.class);
-            // startActivity(intent);
+            Intent intent = new Intent(MainActivity.this, CartActivity.class);
+            startActivity(intent);
         });
     }
 

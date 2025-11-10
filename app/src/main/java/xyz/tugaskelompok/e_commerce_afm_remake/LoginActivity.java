@@ -1,6 +1,7 @@
 package xyz.tugaskelompok.e_commerce_afm_remake;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -50,6 +51,20 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Email atau password salah", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                // Save user info to SharedPreferences
+                String[] userInfo = databaseHelper.getUserInfoByEmail(email);
+                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("user_role", role);
+                editor.putString("user_password", password);
+                if (userInfo != null) {
+                    editor.putString("user_email", userInfo[1]);
+                    editor.putString("user_name", userInfo[0]);
+                } else {
+                    editor.putString("user_email", email);
+                }
+                editor.apply();
 
                 if ("admin".equals(role)) {
                     Intent i = new Intent(LoginActivity.this, AdminMainActivity.class);

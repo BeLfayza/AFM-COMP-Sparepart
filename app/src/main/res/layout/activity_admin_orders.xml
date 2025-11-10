@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_light"
-    tools:context=".AdminMainActivity">
+    tools:context=".AdminOrdersActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,16 +16,28 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Kelola Produk"
+            android:text="Pesanan Pengguna"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="@color/text_primary"
             android:padding="16dp"
             android:background="@color/background_card"
-            android:textColor="@color/text_primary"
             android:elevation="4dp" />
 
+        <TextView
+            android:id="@+id/textViewEmptyOrders"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="Belum ada pesanan"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:padding="32dp"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewAdminProducts"
+            android:id="@+id/recyclerViewAdminOrders"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -58,14 +70,14 @@
                     android:layout_height="32dp"
                     android:src="@android:drawable/ic_menu_manage"
                     android:contentDescription="Produk"
-                    android:tint="@color/primary_blue" />
+                    android:tint="@color/text_secondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Produk"
                     android:textSize="12sp"
-                    android:textColor="@color/primary_blue"
+                    android:textColor="@color/text_secondary"
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>
@@ -87,14 +99,14 @@
                     android:layout_height="32dp"
                     android:src="@android:drawable/ic_menu_recent_history"
                     android:contentDescription="Pesanan"
-                    android:tint="@color/text_secondary" />
+                    android:tint="@color/primary_blue" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pesanan"
                     android:textSize="12sp"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="@color/primary_blue"
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>
@@ -130,14 +142,8 @@
         </LinearLayout>
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddProduct"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Tambah Produk"
-        android:layout_margin="16dp"
-        app:layout_anchor="@id/recyclerViewAdminProducts"
-        app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@android:drawable/ic_input_add" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+
+

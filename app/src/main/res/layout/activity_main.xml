@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="@color/background_light"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="16dp"
-            android:background="@android:color/white"
+            android:background="@color/background_card"
             android:elevation="4dp"
             android:gravity="center_vertical">
 
@@ -28,7 +28,7 @@
                 android:id="@+id/imageViewCart"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@android:drawable/ic_menu_view"
+                android:src="@drawable/keranjang"
                 android:contentDescription="Keranjang"
                 android:padding="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -44,7 +44,9 @@
                 android:layout_marginEnd="16dp"
                 android:hint="Cari produk..."
                 android:padding="12dp"
-                android:background="@android:drawable/edit_text"
+                android:background="?attr/editTextBackground"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
                 android:singleLine="true"
                 android:imeOptions="actionSearch" />
 
@@ -69,7 +71,7 @@
                     android:layout_height="wrap_content"
                     android:scrollbars="none"
                     android:paddingVertical="12dp"
-                    android:background="@android:color/white"
+                    android:background="@color/background_card"
                     android:layout_marginBottom="8dp">
 
                     <LinearLayout
@@ -154,7 +156,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@android:color/white"
+            android:background="@color/background_card"
             android:elevation="8dp"
             android:paddingVertical="12dp"
             android:weightSum="3">
@@ -176,14 +178,14 @@
                     android:layout_height="32dp"
                     android:src="@android:drawable/ic_menu_view"
                     android:contentDescription="Belanja"
-                    android:tint="#2196F3" />
+                    android:tint="@color/primary_blue" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Belanja"
                     android:textSize="12sp"
-                    android:textColor="#2196F3"
+                    android:textColor="@color/primary_blue"
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>
@@ -205,14 +207,14 @@
                     android:layout_height="32dp"
                     android:src="@android:drawable/ic_menu_recent_history"
                     android:contentDescription="Pesanan"
-                    android:tint="#757575" />
+                    android:tint="@color/text_secondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pesanan"
                     android:textSize="12sp"
-                    android:textColor="#757575"
+                    android:textColor="@color/text_secondary"
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>
@@ -234,14 +236,14 @@
                     android:layout_height="32dp"
                     android:src="@android:drawable/ic_menu_myplaces"
                     android:contentDescription="Profil"
-                    android:tint="#757575" />
+                    android:tint="@color/text_secondary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Profil"
                     android:textSize="12sp"
-                    android:textColor="#757575"
+                    android:textColor="@color/text_secondary"
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>

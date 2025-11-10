@@ -12,9 +12,16 @@
         android:theme="@style/Theme.E_Commerce_AFM_Remake">
         <activity android:name=".AdminMainActivity" android:exported="false" />
         <activity android:name=".RegisterActivity" android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+        <activity android:name=".MainActivity" android:exported="false" />
+        <activity android:name=".ProductDetailActivity" android:exported="false" />
+        <activity android:name=".CartActivity" android:exported="false" />
+        <activity android:name=".CheckoutActivity" android:exported="false" />
+        <activity android:name=".OrdersActivity" android:exported="false" />
+        <activity android:name=".OrderDetailActivity" android:exported="false" />
+        <activity android:name=".AdminOrdersActivity" android:exported="false" />
+        <activity android:name=".AdminProfileActivity" android:exported="false" />
+        <activity android:name=".AddEditProductActivity" android:exported="false" />
+        <activity android:name=".ProfileActivity" android:exported="false" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
