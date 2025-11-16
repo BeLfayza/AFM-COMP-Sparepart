@@ -105,5 +105,3 @@ public class AdminProfileActivity extends AppCompatActivity {
 }
 
 
-
-

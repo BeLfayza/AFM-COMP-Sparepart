@@ -103,5 +103,3 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<OrderStatusAdapter.
 }
 
 
-
-

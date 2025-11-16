@@ -94,5 +94,3 @@ public class AdminProductAdapter extends RecyclerView.Adapter<AdminProductAdapte
 }
 
 
-
-

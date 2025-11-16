@@ -105,5 +105,3 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Ad
 }
 
 
-
-

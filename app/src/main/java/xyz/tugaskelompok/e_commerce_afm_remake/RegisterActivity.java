@@ -2,11 +2,9 @@ package xyz.tugaskelompok.e_commerce_afm_remake;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,7 +16,6 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText inputEmail;
     private EditText inputPassword;
     private Button buttonRegister;
-    private TextView linkLogin;
     private DatabaseHelper databaseHelper;
 
     @Override
@@ -33,7 +30,6 @@ public class RegisterActivity extends AppCompatActivity {
         inputEmail = findViewById(R.id.inputEmail);
         inputPassword = findViewById(R.id.inputPassword);
         buttonRegister = findViewById(R.id.buttonRegister);
-        linkLogin = findViewById(R.id.linkLogin);
 
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,16 +44,6 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    Toast.makeText(RegisterActivity.this, "Format email tidak valid", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (password.length() < 6) {
-                    Toast.makeText(RegisterActivity.this, "Password minimal 6 karakter", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 boolean ok = databaseHelper.registerUser(name, email, password, role);
                 if (ok) {
                     Toast.makeText(RegisterActivity.this, "Pendaftaran berhasil. Silakan login.", Toast.LENGTH_SHORT).show();
@@ -65,13 +51,6 @@ public class RegisterActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(RegisterActivity.this, "Email sudah digunakan", Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
-
-        linkLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
             }
         });
     }

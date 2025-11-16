@@ -1,5 +1,6 @@
 package xyz.tugaskelompok.e_commerce_afm_remake;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -22,6 +23,10 @@ public class AddEditProductActivity extends AppCompatActivity {
     private Button buttonSave;
     private Button buttonDelete;
     private TextView textViewTitle;
+    private Button buttonPickImage;
+    private TextView textViewSelectedImage;
+    private String selectedImageUri;
+    private static final int REQ_PICK_IMAGE = 1001;
 
     private DatabaseHelper databaseHelper;
     private Product currentProduct;
@@ -47,6 +52,8 @@ public class AddEditProductActivity extends AppCompatActivity {
         editTextDescription = findViewById(R.id.editTextProductDescription);
         buttonSave = findViewById(R.id.buttonSaveProduct);
         buttonDelete = findViewById(R.id.buttonDeleteProduct);
+        buttonPickImage = findViewById(R.id.buttonPickImage);
+        textViewSelectedImage = findViewById(R.id.textViewSelectedImage);
     }
 
     private void loadProductIfNeeded() {
@@ -61,6 +68,10 @@ public class AddEditProductActivity extends AppCompatActivity {
                 editTextStock.setText(String.valueOf(currentProduct.getStock()));
                 editTextDescription.setText(currentProduct.getDescription());
                 buttonDelete.setVisibility(View.VISIBLE);
+                if (currentProduct.getImageUrl() != null && !currentProduct.getImageUrl().isEmpty()) {
+                    selectedImageUri = currentProduct.getImageUrl();
+                    textViewSelectedImage.setText(selectedImageUri);
+                }
             }
         }
     }
@@ -68,6 +79,12 @@ public class AddEditProductActivity extends AppCompatActivity {
     private void setupActions() {
         buttonSave.setOnClickListener(v -> saveProduct());
         buttonDelete.setOnClickListener(v -> confirmDelete());
+        buttonPickImage.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(Intent.createChooser(intent, "Pilih gambar"), REQ_PICK_IMAGE);
+        });
     }
 
     private void saveProduct() {
@@ -94,14 +111,14 @@ public class AddEditProductActivity extends AppCompatActivity {
 
         boolean success;
         if (currentProduct == null) {
-            success = databaseHelper.addProduct(name, category, price, "", description, stock);
+            success = databaseHelper.addProduct(name, category, price, selectedImageUri != null ? selectedImageUri : "", description, stock);
         } else {
             success = databaseHelper.updateProduct(
                     Integer.parseInt(currentProduct.getId()),
                     name,
                     category,
                     price,
-                    currentProduct.getImageUrl() != null ? currentProduct.getImageUrl() : "",
+                    selectedImageUri != null ? selectedImageUri : (currentProduct.getImageUrl() != null ? currentProduct.getImageUrl() : ""),
                     description,
                     stock
             );
@@ -133,8 +150,16 @@ public class AddEditProductActivity extends AppCompatActivity {
                 .setNegativeButton("Batal", null)
                 .show();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+            if (data.getData() != null) {
+                selectedImageUri = data.getData().toString();
+                textViewSelectedImage.setText(selectedImageUri);
+            }
+        }
+    }
 }
-
-
-
 
