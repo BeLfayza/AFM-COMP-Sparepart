@@ -1,5 +1,5 @@
 # Preview
-<img width="720" height="1601" alt="image" src="https://github.com/user-attachments/assets/86b15f61-530f-424d-a96d-0e26913a26e5" />
+<img width="33%" alt="image" src="https://github.com/user-attachments/assets/86b15f61-530f-424d-a96d-0e26913a26e5" />
 
 <h1>hdmi to hdmi 10rb keren</h1>
 
