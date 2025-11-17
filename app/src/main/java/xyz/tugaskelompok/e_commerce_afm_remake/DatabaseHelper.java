@@ -56,6 +56,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_NAME + " TEXT NOT NULL, " +
                     COLUMN_EMAIL + " TEXT NOT NULL UNIQUE, " +
                     COLUMN_PASSWORD + " TEXT NOT NULL, " +
+                    COLUMN_ADDRESS + " TEXT, " +
+                    COLUMN_PHONE + " TEXT, " +
                     COLUMN_ROLE + " TEXT NOT NULL CHECK(" + COLUMN_ROLE + " IN ('user','admin'))" +
             ")";
 
