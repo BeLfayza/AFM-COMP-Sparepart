@@ -50,6 +50,12 @@
                 android:singleLine="true"
                 android:imeOptions="actionSearch" />
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/nggolek" />
+
         </LinearLayout>
 
         <!-- Middle Content: Kategori Scroll dan Display Barang -->
