@@ -1,3 +1,10 @@
+# Inpo Login
+## Admin
+Email: admin@gmail.com
+Pass : admin
+## User
+Bikin sendiri lewat register lah 😹
+
 # Preview App
 <div align="center">
     <img width="30%" alt="image" src="https://github.com/user-attachments/assets/bcaee7c8-ba7a-42b7-b165-1c51ef0da18a" />
