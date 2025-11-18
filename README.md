@@ -1,8 +1,8 @@
 # Inpo Login
-## Admin
+- Admin
 Email: admin@gmail.com
 Pass : admin
-## User
+- User
 Bikin sendiri lewat register lah 😹
 
 # Preview App
