@@ -176,7 +176,7 @@ public class CheckoutActivity extends AppCompatActivity {
                     editor.clear();
                     editor.apply();
 
-                    Toast.makeText(CheckoutActivity.this, "Pesanan berhasil dibuat", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CheckoutActivity.this, "Pesanan COD Berhasil Dibuat", Toast.LENGTH_SHORT).show();
                     
                     // Navigate to orders page
                     Intent intent = new Intent(CheckoutActivity.this, OrdersActivity.class);
