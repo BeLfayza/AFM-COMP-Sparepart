@@ -3,7 +3,7 @@
 Email: admin@gmail.com  
 Pass : admin  
 - User  
-Bikin sendiri lewat register lah 😹  
+Bikin sendiri lewat register 😹  
 
 # Preview App
 <div align="center">
